@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   Injectable, Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 
 import {
@@ -13,11 +15,11 @@ import {
 import {
   decodeToken,
   generateAuthToken,
-  generateEmailToken,
+  generateEmailToken, isEmail,
 } from '../utils/helper';
 
 import { Role } from './role.entity';
-import { CreateRoleDTO, CreateUserDTO, UserRO } from './user.dto';
+import { CreateRoleDTO, CreateUserDTO, LoginUserDTO, UserRO } from './user.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -69,6 +71,54 @@ export class UserService {
     }
 
     return user;
+  }
+
+  public async login(userDTO: LoginUserDTO): Promise<UserRO> {
+    const {
+      phoneNumberOrEmail,
+      password,
+    }: LoginUserDTO = userDTO;
+
+    const queryString = isEmail(phoneNumberOrEmail)
+      ? 'user.email = :email'
+      : 'user.mobileNumber = :mobileNumber';
+
+    const queryObj = isEmail(phoneNumberOrEmail)
+      ? { email: phoneNumberOrEmail }
+      : { mobileNumber: phoneNumberOrEmail };
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .where(queryString, queryObj)
+      .getOne();
+
+    if (!user) {
+      throw new BadRequestException({
+        messages: {
+          error: 'Invalid credentials',
+        },
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      throw new BadRequestException({
+        messages: {
+          error: 'Invalid credentials',
+        },
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    user.token = generateAuthToken(user.mobileNumber, user.email, user.id);
+    await user.save();
+
+    const message = {
+      message: 'Login Successfully',
+      status: HttpStatus.OK,
+    };
+
+    return user.toResponseObject(true, message);
   }
 
   public async register(userDTO: CreateUserDTO): Promise<UserRO> {
@@ -144,7 +194,7 @@ export class UserService {
         status: HttpStatus.CONFLICT,
       });
     }
-    user.token  = generateAuthToken(user.mobileNumber, user.email);
+    user.token  = generateAuthToken(user.mobileNumber, user.email, user.id);
     user.isEmailVerified = true;
     const updateUser = await user.save();
     const message = {

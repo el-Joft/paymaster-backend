@@ -7,7 +7,8 @@ import {
 
 import {
   CheckPasswordStrength,
-  IsPhoneNumber } from '../utils/validation/isPhoneNumber';
+  IsPhoneNumber, IsPhoneNumberOrEmail,
+} from '../utils/validation/isPhoneNumber';
 
 import { User } from './user.entity';
 
@@ -33,7 +34,15 @@ export class CreateRoleDTO {
 }
 
 export class UserRO {
-  public message: any;
   public token?: string;
   public user: Promise<User>;
+}
+
+export class LoginUserDTO {
+  @IsNotEmpty({ message: 'Enter your password' })
+  public password: string;
+  @Length(1, 255)
+  @Validate(IsPhoneNumberOrEmail)
+  @IsNotEmpty({ message: 'Enter your Email ID or Mobile Number' })
+  public phoneNumberOrEmail: string;
 }
