@@ -3,7 +3,8 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
-  Injectable, Logger,
+  Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -19,14 +20,22 @@ import {
 } from '../utils/helper';
 
 import { Role } from './role.entity';
+import { SocialAuth } from './SocialAuth.entity';
 import { CreateRoleDTO, CreateUserDTO, LoginUserDTO, UserRO } from './user.dto';
 import { User } from './user.entity';
+
+export enum Provider
+{
+  GOOGLE = 'google',
+}
 
 @Injectable()
 export class UserService {
   public constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    @InjectRepository(
+      SocialAuth) private readonly socialAuthRepository: Repository<SocialAuth>,
     private notificationService: NotificationService,
   ) {}
 
@@ -37,6 +46,39 @@ export class UserService {
     }
 
     return this.roleRepository.create({ ...name }).save();
+  }
+
+  public async findById(id: any): Promise<any> {
+    try {
+      return await this.roleRepository.findOne({
+        where: { id },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async findByProviderClientId(providerClientId: any): Promise<any> {
+    try {
+      return await this.socialAuthRepository
+        .createQueryBuilder('social_auth')
+        .where('social_auth.providerClientId = :providerClientId', {
+          providerClientId,
+        })
+        .getOne();
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public findOneByThirdPartyId(thirdPartyId: any, provider: any): any {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.thirdPartyId = :thirdPartyId OR user.provider = :provider', {
+        provider,
+        thirdPartyId,
+      }).getOne();
   }
 
   public async getRoleByName(name: string): Promise<Role> {
@@ -109,8 +151,12 @@ export class UserService {
         status: HttpStatus.BAD_REQUEST,
       });
     }
-
-    user.token = generateAuthToken(user.mobileNumber, user.email, user.id);
+    const payload: Object = {
+      email: user.email,
+      id: user.id,
+      mobileNumber: user.mobileNumber,
+    };
+    user.token = generateAuthToken(payload);
     await user.save();
 
     const message = {
@@ -122,7 +168,9 @@ export class UserService {
   }
 
   public async register(userDTO: CreateUserDTO): Promise<UserRO> {
-    const { email, mobileNumber, password }: CreateUserDTO = userDTO;
+    const {
+      email,
+      mobileNumber, password, firstName, lastName }: CreateUserDTO = userDTO;
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email OR user.mobileNumber = :mobileNumber', {
@@ -161,6 +209,8 @@ export class UserService {
     const role = await this.getRoleByName('customer');
     const newUser = await this.userRepository.create({
       email,
+      firstName,
+      lastName,
       mobileNumber,
       password,
     });
@@ -176,12 +226,12 @@ export class UserService {
     const mail = await this.notificationService.verificationEmail(
       email,
       link,
+      firstName,
     );
     Logger.log(mail);
 
     return newUser.toResponseObject(false, message);
   }
-
   public async verifyEmail(token: string): Promise<UserRO> {
     const decode = decodeToken(token);
     const user = await this.getUserByEmail(decode.email);
@@ -194,7 +244,12 @@ export class UserService {
         status: HttpStatus.CONFLICT,
       });
     }
-    user.token  = generateAuthToken(user.mobileNumber, user.email, user.id);
+    const payload: Object = {
+      email: user.email,
+      id: user.id,
+      mobileNumber: user.mobileNumber,
+    };
+    user.token  = generateAuthToken(payload);
     user.isEmailVerified = true;
     const updateUser = await user.save();
     const message = {

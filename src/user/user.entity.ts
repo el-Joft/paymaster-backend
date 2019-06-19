@@ -15,9 +15,13 @@ export class User extends BaseEntity{
   @CreateDateColumn() public created: Date;
 
   @Column({
+    nullable: true,
     unique: true,
   })
   public email: string;
+
+  @Column({ name: 'first_name', length: 30, nullable: true })
+  public firstName: string;
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -27,10 +31,13 @@ export class User extends BaseEntity{
   @Column({ default: false })
   public isEmailVerified: boolean;
 
-  @Column()
+  @Column({ name: 'last_name', length: 30, nullable: true })
+  public lastName: string;
+
+  @Column({ nullable: true })
   public mobileNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   public password: string;
 
   @ManyToOne(() => Role, (role: Role) => role.users)
@@ -54,10 +61,20 @@ export class User extends BaseEntity{
       id,
       created,
       email,
+      firstName,
+      lastName,
       mobileNumber,
       token,
     }: any = this;
-    const responseObject: any = { id, created, email, message, mobileNumber };
+    const responseObject: any = {
+      created,
+      email,
+      firstName,
+      id,
+      lastName,
+      message,
+      mobileNumber,
+    };
     if (showToken) {
       responseObject.token = token;
     }

@@ -1,5 +1,6 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import {
+  IsAlpha,
   IsEmail,
   IsNotEmpty,
   Length,
@@ -18,6 +19,16 @@ export class CreateUserDTO {
   @IsEmail()
   @ApiModelProperty()
   public email: string;
+
+  @IsNotEmpty({ message: 'First Name cannot be empty' })
+  @IsAlpha({ message: 'First Name must contain only letters' })
+  @ApiModelProperty()
+  public firstName: string;
+
+  @IsNotEmpty({ message: 'Last Name cannot be empty' })
+  @IsAlpha({ message: 'Last Name must contain only letters' })
+  @ApiModelProperty()
+  public lastName: string;
 
   @IsNotEmpty({ message: 'Mobile Number cannot be empty' })
   @Validate(IsPhoneNumber)
