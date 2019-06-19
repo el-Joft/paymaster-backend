@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import 'dotenv/config';
 
 import { AppModule } from './app.module';
@@ -9,5 +10,14 @@ const PORT = process.env.PORT || 4000;
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
+  const options = new DocumentBuilder()
+    .setTitle('PayMaster API')
+    .setDescription('The PayMaster API description')
+    .setVersion('1.0')
+    .addTag('PayMaster')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api/v1', app, document);
+
   await app.listen(PORT);
 })();
