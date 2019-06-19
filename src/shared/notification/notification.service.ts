@@ -5,12 +5,13 @@ export class NotificationService {
   public async verificationEmail(
     reciever: string,
     link: string,
+    firstName: string,
   ): Promise<any> {
     const nodeEnv: string = process.env.SENDGRID_API_KEY as string;
     mail.setApiKey(nodeEnv);
     const emailBody = `
       <div>
-        <h2 style="color: black">Hello,
+        <h2 style="color: black">Hello ${firstName},
         Thanks for signing up with Paymaster </h2>
         Please click <a style="color: blue" href="${link}">here</a>
         To verify your email address,

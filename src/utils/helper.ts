@@ -13,9 +13,8 @@ export function decodeToken(token: string): any {
   return jsonwebtoken.verify(token, nodeEnv);
 }
 
-export function generateAuthToken(
-  mobileNumber: string, email: string, id: string): string {
-  return jsonwebtoken.sign({ mobileNumber, email, id }, nodeEnv, {
+export function generateAuthToken(payload: any): string {
+  return jsonwebtoken.sign(payload, nodeEnv, {
     expiresIn: '7d',
   });
 }
