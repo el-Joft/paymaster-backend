@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Get,
-  Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+  Post, Put, Query, Req, Res, UseGuards,
+} from '@nestjs/common';
 import { ApiUseTags } from '@nestjs/swagger';
 import passport = require('passport');
 
+import { AuthGuard } from '../shared/auth.guard';
+
+import { USER } from './user.decorator';
 import { CreateUserDTO, LoginUserDTO } from './user.dto';
 import { UserService } from './user.service';
 
@@ -15,13 +18,13 @@ import { UserService } from './user.service';
 export class UserController {
   public constructor(private userService: UserService) {}
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  // @UseGuards(AuthGuard('google'))
   public googleLogin(): any {
     // initiates the Google OAuth2 login flow
   }
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  // @UseGuards(AuthGuard('google'))
   public googleLoginCallback(@Req() req: any, @Res() res: any): any {
     // handles the Google OAuth2 callback
     passport.authenticate('google');
@@ -39,6 +42,15 @@ export class UserController {
   @Post('register')
   public register(@Body() data: CreateUserDTO): any {
     return this.userService.register(data);
+  }
+
+  @Put('user/profile')
+  @UseGuards(new AuthGuard())
+  public updateUser(
+    @USER('id') user: string,
+    @Body() data: Partial<CreateUserDTO>,
+  ): any {
+    return this.userService.update(user, data);
   }
 
   @Get('verification')

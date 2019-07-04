@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import 'dotenv/config';
+import 'reflect-metadata';
 
 import { AppModule } from './app.module';
 import { ValidationPipe } from './shared/validation.pipe';
