@@ -1,8 +1,11 @@
 #PAYMENT MASTER
 **An online payment platform**
+
+[![Build Status](https://travis-ci.com/el-Joft/paymaster-backend.svg?token=BFq3KzWqxMtNd3CJbq2v&branch=develop)](https://travis-ci.com/el-Joft/paymaster-backend)
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
+
 
 [travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
 [travis-url]: https://travis-ci.org/nestjs/nest

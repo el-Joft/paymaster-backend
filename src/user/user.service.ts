@@ -2,14 +2,17 @@ import {
   BadRequestException,
   ConflictException,
   HttpException,
-  HttpStatus,
+  HttpStatus, Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 
+import {
+  ROLE_REPOSITORY_TOKEN, SOCIALAUTH_REPOSITORY_TOKEN,
+  USER_REPOSITORY_TOKEN,
+} from '../common/config/database.tokens.constants';
 import {
   NotificationService,
 } from '../shared/notification/notification.service';
@@ -32,10 +35,12 @@ export enum Provider
 @Injectable()
 export class UserService {
   public constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
-    @InjectRepository(
-      SocialAuth) private readonly socialAuthRepository: Repository<SocialAuth>,
+    @Inject(USER_REPOSITORY_TOKEN)
+    private userRepository: Repository<User>,
+    @Inject(ROLE_REPOSITORY_TOKEN)
+    private readonly roleRepository: Repository<Role>,
+    @Inject(SOCIALAUTH_REPOSITORY_TOKEN)
+    private readonly socialAuthRepository: Repository<SocialAuth>,
     private notificationService: NotificationService,
   ) {}
 
@@ -207,7 +212,7 @@ export class UserService {
     const token = generateEmailToken(email);
 
     const role = await this.getRoleByName('customer');
-    const newUser = await this.userRepository.create({
+    const newUser = this.userRepository.create({
       email,
       firstName,
       lastName,

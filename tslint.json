@@ -2,7 +2,7 @@
   "defaultSeverity": "error",
   "extends": "tslint-config-airbnb",
   "rules": {
-    "max-line-length": [true, 80],
+    "max-line-length": [true, 100],
     "interface-name": [true, "always-prefix"],
     "member-access": [true, "check-constructor", "check-accessor", "check-parameter-property"],
     "member-ordering": [true, { "order": "instance-sandwich", "alphabetize": true }],

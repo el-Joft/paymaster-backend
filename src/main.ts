@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 4000;
     .addTag('PayMaster')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api/v1', app, document);
+  SwaggerModule.setup('api-docs', app, document);
 
   await app.listen(PORT);
 })();

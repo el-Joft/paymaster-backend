@@ -1,10 +1,10 @@
-import { ApiUseTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
   Get,
   Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiUseTags } from '@nestjs/swagger';
 import passport = require('passport');
 
 import { CreateUserDTO, LoginUserDTO } from './user.dto';
