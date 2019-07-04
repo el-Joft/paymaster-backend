@@ -3,14 +3,11 @@ import {
   IsAlpha,
   IsEmail,
   IsNotEmpty,
-  Length,
+  Length, Matches,
   Validate,
 } from 'class-validator';
 
-import {
-  CheckPasswordStrength,
-  IsPhoneNumber, IsPhoneNumberOrEmail,
-} from '../utils/validation/isPhoneNumber';
+import { IsPhoneNumberOrEmail } from '../utils/validation/isPhoneNumber';
 
 import { User } from './user.entity';
 
@@ -31,12 +28,17 @@ export class CreateUserDTO {
   public lastName: string;
 
   @IsNotEmpty({ message: 'Mobile Number cannot be empty' })
-  @Validate(IsPhoneNumber)
+  @Matches(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
+    message: 'Phone Number must be valid',
+  })
   @ApiModelProperty()
   public mobileNumber: string;
 
   @IsNotEmpty({ message: 'Password cannot be empty' })
-  @Validate(CheckPasswordStrength)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, {
+    message: 'Minimum eight characters, at least one letter,' +
+      ' one number and one special character',
+  })
   @Length(1, 255)
   @ApiModelProperty()
   public password: string;
