@@ -1,20 +1,24 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { DatabaseModule } from '../database/database.module';
 import {
   NotificationService,
 } from '../shared/notification/notification.service';
 
 import { GoogleStrategy } from './google.strategy';
-import { Role } from './role.entity';
-import { SocialAuth } from './SocialAuth.entity';
 import { UserController } from './user.controller';
-import { User } from './user.entity';
+import { usersProviders } from './user.providers';
 import { UserService } from './user.service';
 
 @Module({
   controllers: [UserController],
-  imports: [TypeOrmModule.forFeature([User, Role, SocialAuth])],
-  providers: [UserService, NotificationService, GoogleStrategy],
+  exports: [UserService],
+  imports: [
+    DatabaseModule,
+  ],
+  providers: [
+    UserService,
+    NotificationService,
+    ...usersProviders, GoogleStrategy],
 })
 export class UserModule {}
