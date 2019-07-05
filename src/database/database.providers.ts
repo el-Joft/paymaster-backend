@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { config } from 'dotenv';
 import { createConnection } from 'typeorm';
 
-import { databaseConfig } from '../dbConfig/dbconfig';
+import { databaseConfig } from '../dbConfig/config';
 
 config();
 const NODE_ENV = process.env.NODE_ENV || 'development';
