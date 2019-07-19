@@ -146,6 +146,7 @@ export class UserService {
       : { mobileNumber: phoneNumberOrEmail };
     const user = await this.userRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
       .where(queryString, queryObj)
       .getOne();
     if (!user) {
@@ -167,10 +168,12 @@ export class UserService {
         status: HttpStatus.BAD_REQUEST,
       });
     }
+
     const payload: Object = {
       email: user.email,
       id: user.id,
       mobileNumber: user.mobileNumber,
+      role: user.role.name,
     };
     const token = generateAuthToken(payload);
     user.token = token;

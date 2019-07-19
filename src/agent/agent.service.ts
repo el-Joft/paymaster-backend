@@ -28,7 +28,7 @@ export class AgentService {
     const BASEURL: string = process.env.BASEURL as string;
     const token = generateEmailToken(email);
     const role = await this.userService.getRoleByName('customer');
-    const newAgent = await this.userRepository.create(agentDTO);
+    const newAgent = this.userRepository.create(agentDTO);
     newAgent.requestAgent = true;
     newAgent.role = role;
     newAgent.token = token;

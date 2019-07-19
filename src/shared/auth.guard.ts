@@ -15,6 +15,7 @@ export class AuthGuard implements CanActivate {
       if (!request.headers.authorization) {
         return false;
       }
+
       // the generated token is attached to the request object
       request.user = await this.validateToken(request.headers.authorization);
 
@@ -36,7 +37,8 @@ export class AuthGuard implements CanActivate {
     try {
 
       const nodeEnv: string = process.env.EMAIL_SECRET as string;
-      return await jwt.verify(token, nodeEnv);
+
+      return jwt.verify(token, nodeEnv);
 
     } catch (err) {
       const message = `Token error:  ${(err.message || err.name)}`;
